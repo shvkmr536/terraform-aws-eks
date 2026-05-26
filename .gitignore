@@ -106,3 +106,8 @@ node_modules/
 
 tmp/
 temp/
+
+
+#==========================
+app/node_modules
+app/npm-debug.log

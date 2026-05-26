@@ -5,21 +5,45 @@ on:
     branches:
       - main
 
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: eks-demo-app
+  IMAGE_TAG: latest
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build Docker Image
+        working-directory: app
         run: |
-          docker build -t app .
+          docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
 
-      - name: Push to ECR
-        run: |
-          echo "Push image to ECR"
 
-      - name: Update Kubernetes Manifest
+      - name: Tag Docker Image
         run: |
-          echo "Update image tag"
+          docker tag $ECR_REPOSITORY:$IMAGE_TAG \
+          ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Push Image to ECR
+        run: |
+          docker push \
+          ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Update Kubernetes Deployment
+        run: |
+          echo "GitOps deployment trigger"
