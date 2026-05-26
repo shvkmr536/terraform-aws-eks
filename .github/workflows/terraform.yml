@@ -8,6 +8,7 @@ permissions:
   id-token: write
   contents: read
 
+
 jobs:
   terraform:
     runs-on: ubuntu-latest
@@ -26,10 +27,13 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init
+        working-directory: terraform/environments/dev
         run: terraform init
 
       - name: Terraform Validate
+        working-directory: terraform/environments/dev
         run: terraform validate
 
       - name: Terraform Plan
+        working-directory: terraform/environments/dev
         run: terraform plan
