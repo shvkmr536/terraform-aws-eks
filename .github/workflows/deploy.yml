@@ -6,7 +6,7 @@ on:
       - main
   workflow_run:
     workflows:
-      - Terraform
+      - Terraform provisioning
     types:
       - completed
 
