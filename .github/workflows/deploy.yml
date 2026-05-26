@@ -1,14 +1,12 @@
-name: Deploy App
+name: Deploy_App
 
 on:
   push:
     branches:
       - main
-  workflow_run:
-    workflows:
-      - Terraform provisioning
-    types:
-      - completed
+#  workflow_run:
+#    workflows:
+#      - Terraform provisioning
 
 permissions:
   id-token: write
