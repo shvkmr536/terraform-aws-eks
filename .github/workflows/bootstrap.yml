@@ -2,9 +2,6 @@ name: Bootstrap EKS Platform
 
 on:
   workflow_run:
-    #workflows: ["Terraform Provisioning"]
-    #types:
-    #  - completed
 
 permissions:
   id-token: write
@@ -16,31 +13,24 @@ env:
 
 jobs:
   bootstrap:
-    #if: ${{ github.event.workflow_run.conclusion == 'success' }}
-
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
-
       - name: Configure AWS
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE }}
           aws-region: ${{ env.AWS_REGION }}
-
       - name: Install Kubectl
         uses: azure/setup-kubectl@v4
-
       - name: Install Helm
         uses: azure/setup-helm@v4
-
       - name: Configure Kubeconfig
         run: |
           aws eks update-kubeconfig \
             --name $CLUSTER_NAME \
             --region $AWS_REGION
-
       - name: Add Helm Repositories
         run: |
           helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server
@@ -67,14 +57,12 @@ jobs:
           helm upgrade --install metrics-server \
             metrics-server/metrics-server \
             -n kube-system
-
       - name: Install Ingress NGINX
         run: |
           helm upgrade --install ingress-nginx \
             ingress-nginx/ingress-nginx \
             -n ingress-nginx \
             --create-namespace
-
       - name: Install Cert Manager
         run: |
           helm upgrade --install cert-manager \
@@ -82,14 +70,12 @@ jobs:
             --namespace cert-manager \
             --create-namespace \
             --set crds.enabled=true
-
       - name: Install Prometheus Stack
         run: |
           helm upgrade --install monitoring \
             prometheus-community/kube-prometheus-stack \
             -n monitoring \
             --create-namespace
-
       - name: Install ArgoCD
         run: |
           helm upgrade --install argocd \
