@@ -12,7 +12,7 @@ module "ecr" {
   source = "git::https://github.com/shvkmr536/terraform-aws-module.git//modules/ecr?ref=main"
 
   environment = var.environment
-  ecr_name    = var.ecr_name
+  platform    = var.platform
 }
 
 module "eks" {
