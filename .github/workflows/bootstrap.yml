@@ -10,7 +10,7 @@ permissions:
 env:
   AWS_REGION: us-east-1
   CLUSTER_NAME: payment-dev-eks-cluster
-
+  
 jobs:
   bootstrap:
     runs-on: ubuntu-latest
