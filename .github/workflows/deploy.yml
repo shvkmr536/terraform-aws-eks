@@ -21,7 +21,7 @@ permissions:
 env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY: payment-dev
-  #IMAGE_TAG: latest
+  IMAGE_TAG: latest
   EKS_CLUSTER: payment-dev-eks-cluster
 
 jobs:
@@ -46,17 +46,17 @@ jobs:
       - name: Build Docker Image
         working-directory: app
         run: |
-          docker build -t $ECR_REPOSITORY:${{ github.sha }} .
+          docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
 
       - name: Tag Docker Image
         run: |
-          docker tag $ECR_REPOSITORY:${{ github.sha }} \
-          ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:${{ github.sha }}
+          docker tag $ECR_REPOSITORY:$IMAGE_TAG \
+          ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Push Image to ECR
         run: |
           docker push \
-          ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:${{ github.sha }}
+          ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
 
       # Update kubeconfig
       - name: Configure kubectl
@@ -68,7 +68,7 @@ jobs:
       #Replace Image Placeholder
       - name: Update Deployment Manifest
         run: |
-          sed -i "s|IMAGE_PLACEHOLDER|${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:${{ github.sha }}|g" kubernetes/apps/deployment.yaml
+          sed -i "s|IMAGE_PLACEHOLDER|${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG|g" kubernetes/apps/deployment.yaml
 
       # Deploy to Kubernetes
       - name: Deploy to EKS

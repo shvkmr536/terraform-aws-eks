@@ -9,6 +9,7 @@ permissions:
 
 env:
   AWS_REGION: us-east-1
+  #VPC_ID: vpc-00dfd2cbdc5bba009
   CLUSTER_NAME: payment-dev-eks-cluster
 
 jobs:
@@ -39,8 +40,17 @@ jobs:
           helm repo add jetstack https://charts.jetstack.io
           helm repo add argo https://argoproj.github.io/argo-helm
           helm repo add eks https://aws.github.io/eks-charts
-          helm repo update   
+          helm repo update 
           
+      - name: Get VPC ID
+        run: |
+          VPC_ID=$(aws eks describe-cluster \
+            --name $CLUSTER_NAME \
+            --region $AWS_REGION \
+            --query "cluster.resourcesVpcConfig.vpcId" \
+            --output text)
+          echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
+                
       - name: Install AWS Load Balancer Controller
         run: |
           helm upgrade --install aws-load-balancer-controller \
