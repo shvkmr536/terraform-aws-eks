@@ -61,9 +61,13 @@ jobs:
         working-directory: terraform/environments/${{ steps.env.outputs.env }}
         run: terraform plan
 
-      - name: Terraform Apply
+      #- name: Terraform Apply
+      #  working-directory: terraform/environments/${{ steps.env.outputs.env }}
+      #  run: terraform apply -auto-approve
+
+      - name: Terraform destroy
         working-directory: terraform/environments/${{ steps.env.outputs.env }}
-        run: terraform apply -auto-approve
+        run: terraform destroy -auto-approve
 
 
       #- name: Upload Plan
