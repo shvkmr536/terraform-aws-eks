@@ -12,7 +12,7 @@ module "eks" {
   source = "git::https://github.com/shvkmr536/terraform-aws-module.git//modules/eks?ref=main"
 
   private_subnets = module.vpc.private_subnet_ids
-  platform                  = var.platform
-  team                      = var.team
-  environment               = var.environment
+  platform        = var.platform
+  team            = var.team
+  environment     = var.environment
 }
