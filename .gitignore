@@ -12,7 +12,12 @@ crash.*.log
 .terraform/
 
 # Ignore terraform lock backup files
-.terraform.lock.hcl.backup
+*.terraform.lock.hcl.backup
+# If you want to ignore lock files in all environment folders:
+environments/*/.terraform.lock.hcl
+
+# Or globally:
+**/.terraform.lock.hcl
 
 # Ignore override files
 override.tf

@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 
 metadata:
-  name: eks-demo-app
+  name: eks-dev-deployment-app
   namespace: default
 
 spec:
@@ -10,16 +10,16 @@ spec:
 
   selector:
     matchLabels:
-      app: eks-demo-app
+      app: eks-dev-deployment-app
 
   template:
     metadata:
       labels:
-        app: eks-demo-app
+        app: eks-dev-deployment-app
 
     spec:
       containers:
-        - name: eks-demo-app
+        - name: eks-dev-deployment-app
 
           image: IMAGE_PLACEHOLDER
 

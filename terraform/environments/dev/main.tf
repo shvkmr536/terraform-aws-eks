@@ -1,29 +1,18 @@
 module "vpc" {
-  source = "../../modules/vpc"
+  #source = "../../modules/vpc"
+  source = "git::https://github.com/shvkmr536/terraform-aws-module.git//modules/vpc?ref=main"
 
-  environment = "dev"
-  vpc_cidr    = "10.0.0.0/16"
+  environment = var.environment
+  vpc_cidr    = var.vpc_cidr
 
-  azs = [
-    "us-east-1a",
-    "us-east-1b"
-  ]
-}
-
-module "iam" {
-  source = "../../modules/iam"
+  azs = ["${var.azs[0]}", "${var.azs[1]}"]
 }
 
 module "eks" {
-  source = "../../modules/eks"
+  source = "git::https://github.com/shvkmr536/terraform-aws-module.git//modules/eks?ref=main"
 
-  cluster_name    = "dev-eks-cluster"
-  environment     = "dev"
-  private_subnets = module.vpc.private_subnets
-
-  cluster_role_arn = module.iam.cluster_role_arn
-  node_role_arn    = module.iam.worker_role_arn
-
-  cluster_policy_attachment = module.iam.cluster_policy_attachment
-  worker_policy_attachment  = module.iam.worker_policy_attachment
+  private_subnets = module.vpc.private_subnet_ids
+  platform                  = var.platform
+  team                      = var.team
+  environment               = var.environment
 }
