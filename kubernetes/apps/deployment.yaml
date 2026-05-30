@@ -21,7 +21,7 @@ spec:
       containers:
         - name: eks-dev-deployment-app
 
-          image: nginx
+          image: IMAGE_PLACEHOLDER
 
           imagePullPolicy: Always
 

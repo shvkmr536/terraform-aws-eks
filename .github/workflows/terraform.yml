@@ -54,9 +54,6 @@ jobs:
           name: terraform-plan
           path: terraform/environments/dev/tfplan
 
-      #- name: Terraform apply
-      #  if: github.ref == 'refs/heads/main'
-      #  run: terraform apply -auto-approve tfplan
-
-      - name: Clean up
-        run: terraform destroy -auto-approve
+      - name: Terraform apply
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve tfplan
