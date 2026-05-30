@@ -1,7 +1,7 @@
 name: Bootstrap EKS Platform
 
 on:
-  workflow_run:
+  workflow_dispatch:
 
 permissions:
   id-token: write
@@ -10,7 +10,7 @@ permissions:
 env:
   AWS_REGION: us-east-1
   CLUSTER_NAME: payment-dev-eks-cluster
-  
+
 jobs:
   bootstrap:
     runs-on: ubuntu-latest
