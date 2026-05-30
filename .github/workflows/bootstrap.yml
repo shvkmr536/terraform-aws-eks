@@ -2,9 +2,9 @@ name: Bootstrap EKS Platform
 
 on:
   workflow_run:
-    workflows: ["Terraform Provisioning"]
-    types:
-      - completed
+    #workflows: ["Terraform Provisioning"]
+    #types:
+    #  - completed
 
 permissions:
   id-token: write
@@ -16,7 +16,7 @@ env:
 
 jobs:
   bootstrap:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    #if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     runs-on: ubuntu-latest
 
@@ -48,8 +48,20 @@ jobs:
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
           helm repo add jetstack https://charts.jetstack.io
           helm repo add argo https://argoproj.github.io/argo-helm
-          helm repo update
-
+          helm repo add eks https://aws.github.io/eks-charts
+          helm repo update   
+          
+      - name: Install AWS Load Balancer Controller
+        run: |
+          helm upgrade --install aws-load-balancer-controller \
+            eks/aws-load-balancer-controller \
+            -n kube-system \
+            --set clusterName=$CLUSTER_NAME \
+            --set serviceAccount.create=true \
+            --set serviceAccount.name=aws-load-balancer-controller \
+            --set region=$AWS_REGION \
+            --set vpcId=${VPC_ID}
+      
       - name: Install Metrics Server
         run: |
           helm upgrade --install metrics-server \
