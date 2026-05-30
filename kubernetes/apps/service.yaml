@@ -2,11 +2,11 @@ apiVersion: v1
 kind: Service
 
 metadata:
-  name: payment-dev-eks-demo-service
+  name: eks-dev-service
 
 spec:
   selector:
-    app: payment-dev-eks-demo-app
+    app: eks-dev-deployment-app
 
   ports:
     - port: 80

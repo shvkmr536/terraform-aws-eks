@@ -65,6 +65,11 @@ jobs:
           aws eks update-kubeconfig \
           --region $AWS_REGION \
           --name $EKS_CLUSTER
+          
+      - name: Deploy to EKS
+        run: |
+          kubectl apply -f kubernetes/apps/
+
 
       - name: Update Image
         run: |
