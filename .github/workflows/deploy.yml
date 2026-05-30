@@ -12,7 +12,6 @@ on:
     workflows: ["Bootstrap EKS Platform"]
     types:
       - completed
-
   workflow_dispatch:
 
 permissions:

@@ -61,10 +61,9 @@ jobs:
         working-directory: terraform/environments/${{ steps.env.outputs.env }}
         run: terraform plan
 
-      #- name: Terraform Apply
-      #  if: github.event_name == 'push'
-      #  working-directory: terraform/environments/${{ steps.env.outputs.env }}
-      #  run: terraform apply -auto-approve
+      - name: Terraform Apply
+        working-directory: terraform/environments/${{ steps.env.outputs.env }}
+        run: terraform apply -auto-approve
 
 
       #- name: Upload Plan
