@@ -8,6 +8,13 @@ module "vpc" {
   azs = ["${var.azs[0]}", "${var.azs[1]}"]
 }
 
+module "ecr" {
+  source = "git::https://github.com/shvkmr536/terraform-aws-module.git//modules/ecr?ref=main"
+
+  environment = var.environment
+  ecr_name    = var.ecr_name
+}
+
 module "eks" {
   source = "git::https://github.com/shvkmr536/terraform-aws-module.git//modules/eks?ref=main"
 
