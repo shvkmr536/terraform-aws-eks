@@ -43,6 +43,7 @@ jobs:
 
       - name: Add Helm Repositories
         run: |
+          helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server
           helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
           helm repo add jetstack https://charts.jetstack.io
