@@ -21,4 +21,5 @@ module "eks" {
   platform        = var.platform
   team            = var.team
   environment     = var.environment
+  cluster_version = var.cluster_version
 }
