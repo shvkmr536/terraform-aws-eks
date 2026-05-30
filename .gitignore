@@ -26,8 +26,8 @@ override.tf.json
 *_override.tf.json
 
 # Ignore variable files containing secrets
-*.tfvars
-*.tfvars.json
+#*.tfvars
+#*.tfvars.json
 
 # Exception for sample variable files
 !*.example.tfvars
