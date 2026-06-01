@@ -6,7 +6,16 @@ metadata:
 apiVersion: v1
 kind: Service
 metadata:
-  name: argocd-server
+  name: argocd-server-lb
   namespace: argocd
 spec:
   type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/instance: argocd
+  ports:
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 8080
+  
