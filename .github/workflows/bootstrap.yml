@@ -18,13 +18,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Configure AWS
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE }}
           aws-region: ${{ env.AWS_REGION }}
       - name: Install Kubectl
         uses: azure/setup-kubectl@v4
+
       - name: Install Helm
         uses: azure/setup-helm@v4
       - name: Configure Kubeconfig
@@ -32,12 +33,25 @@ jobs:
           aws eks update-kubeconfig \
             --name $CLUSTER_NAME \
             --region $AWS_REGION
+
+      - name: Verify Cluster Access 
+        run: | 
+          kubectl cluster-info 
+          kubectl get nodes
+
+      - name: Wait For Worker Nodes
+        run: | 
+          kubectl wait \
+            --for=condition=Ready node \
+            --all \
+            --timeout=600s
+
       - name: Add Helm Repositories
         run: |
           helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server
-          helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+          #helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm repo add jetstack https://charts.jetstack.io
+          #helm repo add jetstack https://charts.jetstack.io
           helm repo add argo https://argoproj.github.io/argo-helm
           helm repo add eks https://aws.github.io/eks-charts
           helm repo update 
@@ -50,6 +64,14 @@ jobs:
             --query "cluster.resourcesVpcConfig.vpcId" \
             --output text)
           echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
+
+      - name: Install Metrics Server
+        run: |
+            helm upgrade --install metrics-server \
+              metrics-server/metrics-server \
+              -n kube-system \
+              --wait \
+              --timeout=600s
                 
       - name: Install AWS Load Balancer Controller
         run: |
@@ -60,35 +82,43 @@ jobs:
             --set serviceAccount.create=true \
             --set serviceAccount.name=aws-load-balancer-controller \
             --set region=$AWS_REGION \
-            --set vpcId=${VPC_ID}
-      
-      - name: Install Metrics Server
-        run: |
-          helm upgrade --install metrics-server \
-            metrics-server/metrics-server \
-            -n kube-system
-      - name: Install Ingress NGINX
-        run: |
-          helm upgrade --install ingress-nginx \
-            ingress-nginx/ingress-nginx \
-            -n ingress-nginx \
-            --create-namespace
-      - name: Install Cert Manager
-        run: |
-          helm upgrade --install cert-manager \
-            jetstack/cert-manager \
-            --namespace cert-manager \
-            --create-namespace \
-            --set crds.enabled=true
+            --set vpcId=${VPC_ID} \
+            --wait \
+            --timeout=600s
+
+      - name: Verify AWS Load Balancer Controller
+        run: | 
+          kubectl rollout status deployment/aws-load-balancer-controller \
+            -n kube-system \
+            --timeout=300s
+
+      #- name: Install Ingress NGINX
+      #  run: |
+      #    helm upgrade --install ingress-nginx \
+      #      ingress-nginx/ingress-nginx \
+      #      -n ingress-nginx \
+      #      --create-namespace
+      #- name: Install Cert Manager
+      #  run: |
+      #    helm upgrade --install cert-manager \
+      #      jetstack/cert-manager \
+      #      --namespace cert-manager \
+      #      --create-namespace \
+      #      --set crds.enabled=true
       - name: Install Prometheus Stack
         run: |
           helm upgrade --install monitoring \
             prometheus-community/kube-prometheus-stack \
             -n monitoring \
             --create-namespace
+            --wait \
+            --timeout=900s
+
       - name: Install ArgoCD
         run: |
           helm upgrade --install argocd \
             argo/argo-cd \
             -n argocd \
             --create-namespace
+            --wait
+            --timeout=600s
