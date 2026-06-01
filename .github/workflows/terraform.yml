@@ -7,7 +7,21 @@ on:
       - develop
     paths:
       - 'terraform/**'
+
   workflow_dispatch:
+    inputs:
+      action:
+        description: Terraform action
+        required: true
+        default: apply
+        type: choice
+        options:
+          - apply
+          - destroy
+      confirm_destroy:
+        description: Type DESTROY to confirm
+        required: false
+  
 permissions:
   id-token: write
   contents: read
@@ -17,7 +31,8 @@ permissions:
 jobs:
   terraform:
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name == 'main' && 'prod' || github.ref_name == 'develop' && 'dev'}}
+    environment: >-
+      ${{ github.ref_name == 'main' && 'prod' || github.ref_name == 'develop' && 'dev' }}
 
     steps:
       - name: Checkout
@@ -28,13 +43,11 @@ jobs:
         run: |
           if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
             echo "env=prod" >> $GITHUB_OUTPUT
-          elif [[ "${GITHUB_REF_NAME}" == "develop" ]]; then
-            echo "env=dev" >> $GITHUB_OUTPUT
           else
             echo "env=dev" >> $GITHUB_OUTPUT
           fi
 
-      - name: Configure AWS
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ vars.AWS_REGION }}
@@ -45,11 +58,11 @@ jobs:
         with:
           terraform_version: ${{ vars.TF_VERSION }}
 
-      - name: Terraform Format
+      - name: Terraform Format check
         working-directory: terraform/environments/${{ steps.env.outputs.env }}
         run: terraform fmt -check -recursive
 
-      - name: Terraform Init
+      - name: Terraform Initialization
         working-directory: terraform/environments/${{ steps.env.outputs.env }}
         run: terraform init
 
@@ -58,18 +71,21 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan
+        if: github.event_name == 'push' || github.event.inputs.action == 'apply'
         working-directory: terraform/environments/${{ steps.env.outputs.env }}
-        run: terraform plan
-
-      #- name: Terraform Apply
-      #  working-directory: terraform/environments/${{ steps.env.outputs.env }}
-      #  run: terraform apply -auto-approve
-
-      - name: Terraform destroy
+        run: terraform plan -out=tfplan
+      
+      - name: Terraform Apply
+        if: github.event_name == 'push' || github.event.inputs.action == 'apply'
+        working-directory: terraform/environments/${{ steps.env.outputs.env }}
+        run: terraform apply -auto-approve tfplan
+      
+      - name: Terraform Destroy
+        if: github.event.inputs.action == 'destroy' &&
+            github.event.inputs.confirm_destroy == 'DESTROY'
         working-directory: terraform/environments/${{ steps.env.outputs.env }}
         run: terraform destroy -auto-approve
-
-
+      
       #- name: Upload Plan
       #  uses: actions/upload-artifact@v4
       #  with:
