@@ -110,7 +110,7 @@ jobs:
           helm upgrade --install monitoring \
             prometheus-community/kube-prometheus-stack \
             -n monitoring \
-            --create-namespace
+            --create-namespace \
             --wait \
             --timeout=900s
 
@@ -119,6 +119,6 @@ jobs:
           helm upgrade --install argocd \
             argo/argo-cd \
             -n argocd \
-            --create-namespace
-            --wait
+            --create-namespace \
+            --wait \
             --timeout=600s
